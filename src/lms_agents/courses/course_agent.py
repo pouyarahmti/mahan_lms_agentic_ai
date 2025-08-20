@@ -13,7 +13,7 @@ class CourseAgent(BaseAgent):
     """Agent specialized in handling course-related queries and operations. You can use this agent to handle course-related queries and operations."""
 
     INSTRUCTIONS = """
-    You are an agent specialized in handling external services queries and operations. You can use this agent to handle course-related queries and operations. You have access to the tools that can be used to handle course-related queries and operations like get_all_courses, get_course_info, get_courses_by_category, ..... . 
+     You can use this agent to handle course-related queries and operations. You have access to the tools that can be used to handle course-related queries and operations like get_all_courses, get_course_info, get_courses_by_category, ..... . 
     """
 
     TOOL_INSTRUCTIONS = """ 
