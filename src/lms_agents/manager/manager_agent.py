@@ -2,7 +2,7 @@ from typing import List
 from agents import function_tool, Agent, ModelSettings
 import requests
 from src.config.settings import settings
-from src.services.lms_agents.courses.course_agent import CourseAgent
+from src.lms_agents.courses.course_agent import CourseAgent
 
 
 class ManagerAgent:

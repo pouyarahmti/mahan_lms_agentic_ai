@@ -1,5 +1,5 @@
 from agents import Runner, trace
-from src.services.lms_agents.manager.manager_agent import ManagerAgent
+from src.lms_agents.manager.manager_agent import ManagerAgent
 import asyncio
 import requests
 from src.config.settings import settings
