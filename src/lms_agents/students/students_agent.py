@@ -27,10 +27,10 @@ class StudentsAgent(BaseAgent):
             get_student_by_id,
         ]
         super().__init__(
-            name="Lessons Agent", instructions=self.INSTRUCTIONS, tools=tools
+            name="Students Agent", instructions=self.INSTRUCTIONS, tools=tools
         )
 
         self.agent_tool = self.agent.as_tool(
-            tool_name="lessons_tool",
+            tool_name="students_tool",
             tool_description=self.TOOL_INSTRUCTIONS,
         )

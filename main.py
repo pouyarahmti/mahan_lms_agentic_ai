@@ -10,7 +10,7 @@ async def main():
     with trace("User Assistant"):
         result = await Runner.run(
             manager_agent.agent,
-            "Hi there, list me 5 lessons related in the course 013 - مدیرعامل حرفه ای-آنلاین",
+            "List me the details of an student with the name of روح اله باطنی",
         )
         print(result.final_output)
 
