@@ -19,6 +19,8 @@ class Settings:
     OPENAI_TEMPERATURE: float = float(os.getenv("OPENAI_TEMPERATURE", "0.7"))
     OPENAI_MAX_TOKENS: int = int(os.getenv("OPENAI_MAX_TOKENS", "1000"))
 
+    API_ACCESS_KEY = os.getenv("API_ACCESS_KEY")
+
     # API Endpoints
     API_ENDPOINTS: Dict[str, str] = {"base_url": "https://api.mahanls.com"}
 
