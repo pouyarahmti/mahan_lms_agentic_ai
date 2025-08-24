@@ -4,6 +4,7 @@ from src.config.settings import settings
 # AGENTS
 from src.lms_agents.courses.course_agent import CourseAgent
 from src.lms_agents.lessons.lessons_agent import LessonsAgent
+from src.lms_agents.students.students_agent import StudentsAgent
 
 
 class ManagerAgent:
@@ -23,6 +24,7 @@ class ManagerAgent:
             tools=[
                 CourseAgent().agent_tool,
                 LessonsAgent().agent_tool,
+                StudentsAgent().agent_tool,
             ],
             model=settings.OPENAI_MODEL,
             model_settings=ModelSettings(verbosity="medium", temperature=0.7),
