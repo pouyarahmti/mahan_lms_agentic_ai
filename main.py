@@ -10,7 +10,7 @@ async def main():
     with trace("User Assistant"):
         result = await Runner.run(
             manager_agent.agent,
-            "List me the grades of an student with the id of 2720 and take the average of them.",
+            "List me the home work responses of an student with the id of 8388 and take the average of the scores.",
             max_turns=100,
         )
         print(result.final_output)
