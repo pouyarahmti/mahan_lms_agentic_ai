@@ -1,7 +1,2 @@
-typing
 agents
-smolagents
-logging
-functools
-dataclasses
-abc
+git+https://github.com/huggingface/smolagents.git
