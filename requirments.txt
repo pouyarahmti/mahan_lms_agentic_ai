@@ -1,0 +1,7 @@
+typing
+agents
+smolagents
+logging
+functools
+dataclasses
+abc
