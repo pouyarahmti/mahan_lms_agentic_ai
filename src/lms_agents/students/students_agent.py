@@ -6,6 +6,7 @@ from src.lms_agents.base_agent import BaseAgent
 from src.tools.students.students_tools import (
     get_all_students,
     get_student_by_id,
+    get_student_by_name,
 )
 
 
@@ -13,7 +14,7 @@ class StudentsAgent(BaseAgent):
     """Agent specialized in handling students-related queries and operations. You can use this agent to handle students-related queries and operations."""
 
     INSTRUCTIONS = """
-     You can use this agent to handle students-related queries and operations. You have access to the tools that can be used to handle students-related queries and operations like get_all_students, get_student_by_id, ..... . 
+     You can use this agent to handle students-related queries and operations. You have access to the tools that can be used to handle students-related queries and operations like get_all_students, get_student_by_id, get_student_by_name, ..... . 
     """
 
     TOOL_INSTRUCTIONS = """ 
@@ -22,10 +23,7 @@ class StudentsAgent(BaseAgent):
 
     def __init__(self):
         """Initialize the Students Agent with external tools."""
-        tools = [
-            get_all_students,
-            get_student_by_id,
-        ]
+        tools = [get_all_students, get_student_by_id, get_student_by_name]
         super().__init__(
             name="Students Agent", instructions=self.INSTRUCTIONS, tools=tools
         )

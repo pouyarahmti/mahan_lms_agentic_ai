@@ -93,7 +93,7 @@ def get_homeworks_by_lesson(lesson_id: str) -> List:
 
 @function_tool
 def get_homeworks_responses_by_user(user_id: str) -> List:
-    """Get a list of all homeworks responses for a specific user. You have to pass the user id as a query parameter in the request. Use this tool in case the user asks for homeworks for a specific user. In case you the user add username to the question, use the users tool to get the user id and pass it to this tool. In case you could not find the user id, respond back to the user that the user is not found.
+    """Get a list of all homeworks responses for a specific user. You have to pass the user id as a query parameter in the request. Use this tool in case the user asks for homeworks for a specific user. In case you the user add username to the question, use the get_student_by_name tool from the students agent to get the user id and pass it to this tool. In case you could not find the user id, respond back to the user that the user is not found.
 
     Args:
         user_id (str): The id of the user.

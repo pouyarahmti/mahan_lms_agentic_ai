@@ -45,3 +45,27 @@ def get_student_by_id(student_id: str) -> List:
         return response.json()["results"]
     except requests.RequestException as e:
         return {"error": str(e)}
+
+
+@function_tool
+def get_student_by_name(student_name: str) -> List:
+    """Get a student by name. You have to pass the students name as a query parameter in the request. Use this tool in case you need to find a specific student name. I In case you could not find the student with the name, respond back to the user that the student not found.
+
+    Args:
+        student_name (str): The name of the student.
+    """
+
+    try:
+
+        headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+
+        response = requests.get(
+            f"{settings.API_ENDPOINTS['base_url']}/external-services/api/v1/students/",
+            params={"search": student_name},
+            timeout=10,
+            headers=headers,
+        )
+        response.raise_for_status()
+        return response.json()["results"]
+    except requests.RequestException as e:
+        return {"error": str(e)}

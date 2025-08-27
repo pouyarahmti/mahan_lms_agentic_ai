@@ -34,6 +34,6 @@ class ManagerAgent:
                 GradesAgent().agent_tool,
                 HomeworksAgent().agent_tool,
             ],
-            model=settings.OPENAI_MODEL,
-            model_settings=ModelSettings(verbosity="medium", temperature=0.7),
+            model="gpt-5-mini",
+            model_settings=ModelSettings(verbosity="medium"),
         )
