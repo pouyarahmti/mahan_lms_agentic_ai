@@ -5,21 +5,41 @@ from src.lms_agents.manager.manager_agent import ManagerAgent
 import asyncio
 import requests
 from src.config.settings import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 async def main():
-    manager_agent = ManagerAgent()
-    with trace("User Assistant"):
-        result = Runner.run_streamed(
-            manager_agent,
-            input="List me the homework responses of the student  'نوبخت علیپور'  and take the average of the scores.",
-        )
-        async for event in result.stream_events():
-            if event.type == "raw_response_event" and isinstance(
-                event.data, ResponseTextDeltaEvent
-            ):
-                print(event.data.delta, end="", flush=True)
+    """Enhanced main function with comprehensive error handling."""
+    try:
+        manager_agent = ManagerAgent()
+
+        # Log available capabilities
+        capabilities = manager_agent.get_available_capabilities()
+        logger.info(f"System ready with capabilities: {capabilities}")
+
+        with trace("User Assistant Session"):
+            result = await Runner.run(
+                manager_agent.agent,
+                "hi.",
+                max_turns=100,
+            )
+
+            if result.final_output:
+                print("✅ Response:")
+                print(result.final_output)
+            else:
+                print("❌ No response generated")
+
+    except Exception as e:
+        logger.error(f"Application error: {e}")
+        print(f"❌ Application failed: {e}")
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
     asyncio.run(main())

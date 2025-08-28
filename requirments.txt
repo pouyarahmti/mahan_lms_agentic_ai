@@ -1,0 +1,2 @@
+agents
+git+https://github.com/huggingface/smolagents.git

@@ -34,3 +34,10 @@ class LessonsAgent(BaseAgent):
             tool_name="lessons_tool",
             tool_description=self.TOOL_INSTRUCTIONS,
         )
+
+    def get_capabilities(self) -> List[str]:
+        """Return capabilities of this agent."""
+        return [
+            "get_all_lessons",
+            "get_lessons_by_course",
+        ]

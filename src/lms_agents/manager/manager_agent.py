@@ -6,34 +6,76 @@ from src.lms_agents.courses.course_agent import CourseAgent
 from src.lms_agents.lessons.lessons_agent import LessonsAgent
 from src.lms_agents.students.students_agent import StudentsAgent
 from src.lms_agents.grades.grades_agent import GradesAgent
+from agents import Agent, ModelSettings
+from src.config.settings import settings
+from typing import Dict, List
+import logging
+
+logger = logging.getLogger(__name__)
 from src.lms_agents.homeworks.homeworks_agent import HomeworksAgent
 
 
 class ManagerAgent:
+    """Enhanced manager agent with better orchestration and error handling."""
 
-    INSTRUCTIONS = """You are an educational assistant for Mahan users. You have access to various tools that can be used to answer to the user as complete as possible. \
-        You can combine the results of the tools to create a complete answer to the user's question. \
-        You have access to the tools that can be used to handle course-related queries and operations like get_all_courses, get_courses_by_category, ..... . \
-        You have access to the tools that can be used to handle lesson-related queries and operations like get_all_lessons, get_lessons_by_course, ..... . \
-        You have access to the tools that can be used to handle student-related queries and operations like get_all_students, get_student_by_id, ..... . \
-        You have access to the tools that can be used to handle grade-related queries and operations like get_all_grades, get_grades_by_student, ..... . \
-        You have access to the tools that can be used to handle homeworks-related queries and operations like get_all_homeworks, get_homeworks_by_lesson, ..... . \
-        You can either respond back to the user in English or in Persian. Respond back to the user by the language that the user has used to ask the question. \
-        Always provide clear, helpful responses about academic matters. \
-        Also don't be too cold or too formal. Be friendly and helpful. Be honest and help the user to improve their academic performance. """
+    INSTRUCTIONS = """
+    You are an advanced educational assistant for Mahan users with access to specialized agents.
+    
+    Your role:
+    - Coordinate between different specialized agents (Course, Lessons, Students, Grades)
+    - Provide comprehensive, well-structured responses
+    - Handle complex queries that may require multiple agent interactions
+    - Maintain context across multi-step operations
+    
+    Response Guidelines:
+    - Match the user's language (English/Persian)
+    - Be friendly, helpful, and encouraging
+    - Provide clear explanations and actionable advice
+    - When errors occur, explain what went wrong and suggest alternatives
+    - Always aim to fully answer the user's question, combining data from multiple sources if needed
+    
+    Available Agents:
+    - Course Agent: Handle course-related queries and operations
+    - Lessons Agent: Manage lesson content and structure
+    - Students Agent: Access student information and profiles
+    - Grades Agent: Retrieve and analyze grade information
+    
+    For complex requests, break them down into steps and use multiple agents as needed.
+    """
 
     def __init__(self):
-        """Initialize the Manager Agent with all available tools."""
+        """Initialize the Manager Agent with enhanced coordination."""
+        # Initialize specialized agents
+        self.course_agent = CourseAgent()
+        self.lessons_agent = LessonsAgent()
+        self.students_agent = StudentsAgent()
+        self.grades_agent = GradesAgent()
+
+        # Create main coordinating agent
         self.agent = Agent(
-            name="Manager Agent",
+            name="Educational Manager Agent",
             instructions=self.INSTRUCTIONS,
             tools=[
-                CourseAgent().agent_tool,
-                LessonsAgent().agent_tool,
-                StudentsAgent().agent_tool,
-                GradesAgent().agent_tool,
-                HomeworksAgent().agent_tool,
+                self.course_agent.agent_tool,
+                self.lessons_agent.agent_tool,
+                self.students_agent.agent_tool,
+                self.grades_agent.agent_tool,
             ],
-            model="gpt-5-mini",
-            model_settings=ModelSettings(verbosity="medium"),
+            model=settings.OPENAI_MODEL,
+            model_settings=ModelSettings(
+                verbosity="medium",
+                temperature=0.7,
+                max_tokens=2000,  # Allow for more comprehensive responses
+            ),
         )
+
+        logger.info("Manager Agent initialized with all specialized agents")
+
+    def get_available_capabilities(self) -> Dict[str, List[str]]:
+        """Return all capabilities across agents."""
+        return {
+            "course": self.course_agent.get_capabilities(),
+            "lessons": self.lessons_agent.get_capabilities(),
+            "students": self.students_agent.get_capabilities(),
+            "grades": self.grades_agent.get_capabilities(),
+        }
