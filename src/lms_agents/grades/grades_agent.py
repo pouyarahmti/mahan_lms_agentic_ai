@@ -36,3 +36,11 @@ class GradesAgent(BaseAgent):
             tool_name="grades_tool",
             tool_description=self.TOOL_INSTRUCTIONS,
         )
+
+    def get_capabilities(self) -> List[str]:
+        """Return capabilities of this agent."""
+        return [
+            "get_all_grades",
+            "get_lesson_grades",
+            "get_student_grades",
+        ]

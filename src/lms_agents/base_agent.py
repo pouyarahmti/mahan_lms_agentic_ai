@@ -1,21 +1,24 @@
-
 from abc import ABC, abstractmethod
 from typing import List, Any, Optional, Dict
 from dataclasses import dataclass
 from functools import lru_cache
 import logging
+from agents import Agent
 from smolagents import LiteLLMModel, CodeAgent
 from src.config.settings import settings
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class AgentResponse:
     """Standardized response format for all agents."""
+
     success: bool
     data: Any = None
     error: Optional[str] = None
     metadata: Dict[str, Any] = None
+
 
 class BaseAgent(ABC):
     """Abstract base class for all agents in the system."""

@@ -12,9 +12,11 @@ from typing import Dict, List
 import logging
 
 logger = logging.getLogger(__name__)
+
+
 class ManagerAgent:
     """Enhanced manager agent with better orchestration and error handling."""
-    
+
     INSTRUCTIONS = """
     You are an advanced educational assistant for Mahan users with access to specialized agents.
     
@@ -47,7 +49,7 @@ class ManagerAgent:
         self.lessons_agent = LessonsAgent()
         self.students_agent = StudentsAgent()
         self.grades_agent = GradesAgent()
-        
+
         # Create main coordinating agent
         self.agent = Agent(
             name="Educational Manager Agent",
@@ -60,14 +62,14 @@ class ManagerAgent:
             ],
             model=settings.OPENAI_MODEL,
             model_settings=ModelSettings(
-                verbosity="medium", 
+                verbosity="medium",
                 temperature=0.7,
-                max_tokens=2000  # Allow for more comprehensive responses
+                max_tokens=2000,  # Allow for more comprehensive responses
             ),
         )
-        
+
         logger.info("Manager Agent initialized with all specialized agents")
-    
+
     def get_available_capabilities(self) -> Dict[str, List[str]]:
         """Return all capabilities across agents."""
         return {

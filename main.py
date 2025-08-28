@@ -12,31 +12,32 @@ async def main():
     """Enhanced main function with comprehensive error handling."""
     try:
         manager_agent = ManagerAgent()
-        
+
         # Log available capabilities
         capabilities = manager_agent.get_available_capabilities()
         logger.info(f"System ready with capabilities: {capabilities}")
-        
+
         with trace("User Assistant Session"):
             result = await Runner.run(
                 manager_agent.agent,
-                "List me the grades of a student with the id of 2720 and calculate the average.",
+                "hi.",
                 max_turns=100,
             )
-            
+
             if result.final_output:
                 print("✅ Response:")
                 print(result.final_output)
             else:
                 print("❌ No response generated")
-                
+
     except Exception as e:
         logger.error(f"Application error: {e}")
         print(f"❌ Application failed: {e}")
 
+
 if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
     asyncio.run(main())
