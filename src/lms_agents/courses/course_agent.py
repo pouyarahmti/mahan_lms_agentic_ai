@@ -11,7 +11,7 @@ from src.tools.course.course_tools import (
 
 class CourseAgent(BaseAgent):
     """Agent specialized in handling course-related queries and operations."""
-    
+
     INSTRUCTIONS = """
     You are a Course Services Agent specialized in handling course-related queries.
     
@@ -27,7 +27,7 @@ class CourseAgent(BaseAgent):
     - Be conversational and helpful in your responses
     - If a request fails, suggest alternative approaches
     """
-    
+
     TOOL_INSTRUCTIONS = """
     Comprehensive tool for course-related operations including:
     - Getting all courses
@@ -42,22 +42,19 @@ class CourseAgent(BaseAgent):
             get_all_courses,
             get_courses_by_category,
         ]
-        
+
         super().__init__(
-            name="Course Services Agent",
-            instructions=self.INSTRUCTIONS,
-            tools=tools
+            name="Course Services Agent", instructions=self.INSTRUCTIONS, tools=tools
         )
-        
+
         self.agent_tool = self.agent.as_tool(
             tool_name="course_tool",
             tool_description=self.TOOL_INSTRUCTIONS,
         )
-    
+
     def get_capabilities(self) -> List[str]:
         """Return capabilities of this agent."""
         return [
             "list_all_courses",
             "filter_courses_by_category",
-            "provide_course_information"
         ]

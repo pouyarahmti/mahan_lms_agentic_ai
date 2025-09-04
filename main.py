@@ -22,7 +22,7 @@ async def main():
         with trace("User Assistant Session"):
             result = await Runner.run(
                 manager_agent.agent,
-                "hi.",
+                "hi. please list me top 5 courses in Mahan.",
                 max_turns=100,
             )
 
