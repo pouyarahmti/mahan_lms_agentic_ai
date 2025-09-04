@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Any, Optional, Dict
 from dataclasses import dataclass
-from functools import lru_cache
 import logging
 from agents import Agent
 from smolagents import LiteLLMModel, CodeAgent
@@ -49,7 +48,7 @@ class BaseAgent(ABC):
         self.agent = self._create_agent()
         logger.info(f"Initialized {name} with {len(self.tools)} tools")
 
-    def _create_agent(self) -> CodeAgent:
+    def _create_agent(self) -> Agent:
         """Create the code agent with tools and system prompt."""
         return Agent(
             name=self.name,

@@ -1,6 +1,4 @@
 from typing import List
-from agents import function_tool
-import requests
 from src.config.settings import settings
 from src.lms_agents.base_agent import BaseAgent
 from src.tools.grades.grades_tools import (

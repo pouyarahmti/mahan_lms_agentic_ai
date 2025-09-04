@@ -1,7 +1,4 @@
 from typing import List
-from agents import function_tool
-import requests
-from src.config.settings import settings
 from src.lms_agents.base_agent import BaseAgent
 from src.tools.students.students_tools import (
     get_all_students,
@@ -18,7 +15,8 @@ class StudentsAgent(BaseAgent):
     
     Available capabilities:
     - Retrieve all available students
-    - Filter student by name, id
+    - Filter students by name
+    - Filter students by id
     
     Guidelines:
     - Always validate input parameters before making API calls
@@ -29,10 +27,10 @@ class StudentsAgent(BaseAgent):
     """
 
     TOOL_INSTRUCTIONS = """
-    Comprehensive tool for grade-related operations including:
+    Comprehensive tool for student-related operations including:
     - Getting all students
-    - Filtering grades by id
-    - Filtering grades by email
+    - Filtering students by id
+    - Filtering students by email
     - Student information retrieval (name, id, email, job, phone number, etc.)
     Use this when users ask about students, student information, or student related queries.
     """

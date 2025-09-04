@@ -1,7 +1,6 @@
 from agents import function_tool
 import requests
 from src.config.settings import settings
-from typing import List
 import logging
 from src.utils.utils import retry_on_failure
 import time
