@@ -1,7 +1,6 @@
 from agents import function_tool
 import requests
 from src.config.settings import settings
-from typing import List
 import logging
 from src.utils.utils import retry_on_failure
 import time
@@ -17,7 +16,7 @@ def get_all_students() -> AgentResponse:
     headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
 
     """
-    Get a list of all available students with improved error handling. Using this tool yall students details like name, phone number, contact details (email, address), job information, etc is available. 
+    Get a list of all available students with improved error handling. Using this tool all students details like name, phone number, contact details (email, address), job information, etc is available. 
     Returns standardized response format.
     """
 
@@ -45,7 +44,8 @@ def get_all_students() -> AgentResponse:
 @function_tool
 @retry_on_failure(max_retries=3)
 def get_student_by_id(student_id: str) -> AgentResponse:
-    """Get a student by id. The student id as a query parameter in the request is required. Use this tool in case you need to find a specific student. In case you the user name to the question, use the all students tool to get the student id and pass it to this tool. In case you could not find the student id, respond back to the user that the student is not found.
+    """Get a student by id. The student id as a query parameter in the request is required. Use this tool in case you need to find a specific student. In case the user ask for the user name to the question, use the all students tool to get the student id and pass it to this tool. In case you could not find the student id, respond back to the user that the student is not found. Returns standardized response format.
+
 
     Args:
         student_id (str): The id of the student (must be non-empty).
@@ -76,8 +76,9 @@ def get_student_by_id(student_id: str) -> AgentResponse:
 
 @function_tool
 @retry_on_failure(max_retries=3)
-def get_student_by_name(student_name: str) -> List:
-    """Get a student by name. The student name as a query parameter in the request is required. Use this tool in case you need to find a specific student by name.  In case you could not find a student with that student name, respond back to the user that the student is not found.
+def get_student_by_name(student_name: str) -> AgentResponse:
+    """Get a student by name. The student name as a query parameter in the request is required. Use this tool in case you need to find a specific student by name.  In case you could not find a student with that student name, respond back to the user that the student is not found. Returns standardized response format.
+
 
     Args:
         student_name (str): The name of the student (must be non-empty).

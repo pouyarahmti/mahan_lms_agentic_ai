@@ -2,71 +2,117 @@ from agents import function_tool
 import requests
 from src.config.settings import settings
 from typing import List
+import logging
+from src.utils.utils import retry_on_failure
+import time
+from src.lms_agents.base_agent import AgentResponse
+
+
+logger = logging.getLogger(__name__)
 
 
 @function_tool
-def get_all_grades() -> List:
+@retry_on_failure(max_retries=3)
+def get_all_grades() -> AgentResponse:
     headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
 
     """
-    Get a list of all available grades. You can access all the available grades using this tool. In case the user asks for grades or the user question is related to grades, each grade is constructed as follows: id, user, lesson, total_score, score, nomrehozoor (which is the grade for being absent/present). 
+    Get a list of all available grades with improved error handling. Using this tool all grade details like id, user, lesson, total_score, score, nomrehozoor (which is the grade for being absent/present), etc is available.
+    Returns standardized response format.
     """
+
     try:
         response = requests.get(
-            f"{settings.API_ENDPOINTS['base_url'
-            ]}/external-services/api/v1/grades/",
+            f"{settings.API_ENDPOINTS['base_url']}/external-services/api/v1/grades/",
             timeout=10,
             headers=headers,
         )
         response.raise_for_status()
-        return response.json()["results"]
+
+        data = response.json()
+        grades = data.get("results", [])
+
+        return AgentResponse(
+            success=True,
+            data=grades,
+            metadata={"total_grades": len(grades), "timestamp": time.time()},
+        )
     except requests.RequestException as e:
-        return {"error": str(e)}
+        logger.error(f"Failed to fetch grades: {e}")
+        return AgentResponse(success=False, error=f"Failed to fetch grades: {str(e)}")
 
 
 @function_tool
-def get_lesson_grades(lesson_id: str) -> List:
-    """Get a list of all grades for a specific lesson. You have to pass the lesson id as a query parameter in the request. Use this tool in case the user asks for grades in a specific lesson. In case you the user add lesson name to the question, use the lessons tool to get the lesson id and pass it to this tool. In case you could not find the lesson id, respond back to the user that the lesson is not found.
+@retry_on_failure(max_retries=3)
+def get_lesson_grades(lesson_id: str) -> AgentResponse:
+    """Get a list of all grades for a specific lesson. The lesson id as a query parameter in the request is required. This tool could be used in case the user asks for grades in a specific lesson. In case the user add lesson name to the question, use the lessons tool to get the lesson id and pass it to this tool. In case you could not find the lesson id, respond back to the user that the lesson is not found. Returns standardized response format.
 
     Args:
         lesson_id (str): The id of the lesson.
     """
 
+    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+
     try:
-
-        headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
-
         response = requests.get(
             f"{settings.API_ENDPOINTS['base_url']}/external-services/api/v1/grades/",
-            params={"lesson": lesson_id},
             timeout=10,
+            params={"lesson": lesson_id},
             headers=headers,
         )
         response.raise_for_status()
-        return response.json()["results"]
+
+        data = response.json()
+        lesson_grades = data.get("results", [])
+
+        return AgentResponse(
+            success=True,
+            data=lesson_grades,
+            metadata={
+                "lesson_grades_length": len(lesson_grades),
+                "timestamp": time.time(),
+            },
+        )
     except requests.RequestException as e:
-        return {"error": str(e)}
+        logger.error(f"Failed to fetch lesson grades: {e}")
+        return AgentResponse(
+            success=False, error=f"Failed to fetch lesson grades: {str(e)}"
+        )
 
 
 @function_tool
-def get_student_grades(student_id: str) -> List:
-    """Get a list of all grades for a specific student. You have to pass the student id as a query parameter in the request. Use this tool in case the user asks for him/her or another student grades. In case you the user use student name in the question, use the Students Agent to find the student id and pass it to this tool. In case you could not find the student id, respond back to the user that the user is not found or that the user does not exist.
+@retry_on_failure(max_retries=3)
+def get_student_grades(student_id: str) -> AgentResponse:
+    """Get a list of all grades for a specific student. Tthe student id as a query parameter in the request is required. This tool could be used in case the user asks for him/her or another student grades. In case you the user add student name in the question, use the Students Agent to find the student id and pass it to this tool. In case you could not find the student id, respond back to the user that the user is not found or that the user does not exist. Returns standardized response format
 
     Args:
         student_id (str): The id of the student.
     """
 
+    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+
     try:
-
-        headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
-
         response = requests.get(
             f"{settings.API_ENDPOINTS['base_url']}/external-services/api/v1/grades/",
-            params={"user": student_id},
             timeout=10,
+            params={"user": student_id},
             headers=headers,
         )
         response.raise_for_status()
-        return response.json()["results"]
+
+        data = response.json()
+        user_grades = data.get("results", [])
+
+        return AgentResponse(
+            success=True,
+            data=user_grades,
+            metadata={
+                "student_grades_length": len(user_grades),
+                "timestamp": time.time(),
+            },
+        )
     except requests.RequestException as e:
-        return {"error": str(e)}
+        logger.error(f"Failed to fetch lesson grades: {e}")
+        return AgentResponse(
+            success=False, error=f"Failed to fetch lesson grades: {str(e)}"
+        )
