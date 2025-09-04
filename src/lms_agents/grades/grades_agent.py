@@ -18,8 +18,8 @@ class GradesAgent(BaseAgent):
     
     Available capabilities:
     - Retrieve all available grades
-    - Filter courses by lesson
-    - Filter courses by student
+    - Filter grades by lesson
+    - Filter grades by student
     
     Guidelines:
     - Always validate input parameters before making API calls
@@ -34,6 +34,7 @@ class GradesAgent(BaseAgent):
     - Getting all grades
     - Filtering grades by lesson
     - Filtering grades by student
+    - Grade information retrieval
     Use this when users ask about grades, scores, or academic performance.
     """
 
@@ -45,7 +46,7 @@ class GradesAgent(BaseAgent):
             get_student_grades,
         ]
         super().__init__(
-            name="Grades Agent", instructions=self.INSTRUCTIONS, tools=tools
+            name="Grades Services Agent", instructions=self.INSTRUCTIONS, tools=tools
         )
 
         self.agent_tool = self.agent.as_tool(

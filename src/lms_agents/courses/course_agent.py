@@ -18,7 +18,6 @@ class CourseAgent(BaseAgent):
     Available capabilities:
     - Retrieve all available courses
     - Filter courses by category
-    - Provide course recommendations based on user preferences
     
     Guidelines:
     - Always validate input parameters before making API calls
