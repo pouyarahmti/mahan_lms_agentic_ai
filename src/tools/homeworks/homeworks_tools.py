@@ -2,114 +2,203 @@ from agents import function_tool
 import requests
 from src.config.settings import settings
 from typing import List
+import logging
+from src.utils.utils import retry_on_failure
+import time
+from src.lms_agents.base_agent import AgentResponse
+
+
+logger = logging.getLogger(__name__)
 
 
 @function_tool
-def get_all_homeworks() -> List:
+@retry_on_failure(max_retries=3)
+def get_all_homeworks() -> AgentResponse:
+
     headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
 
     """
-    Get a list of all available homeworks. You can access all the available homeworks using this tool. In case the user asks for the available homeworks or the user question is related to available homeworks. 
-    """
-    try:
-        response = requests.get(
-            f"{settings.API_ENDPOINTS['base_url'
-            ]}/external-services/api/v1/homeworks/",
-            timeout=10,
-            headers=headers,
-        )
-        response.raise_for_status()
-        return response.json()["results"]
-    except requests.RequestException as e:
-        return {"error": str(e)}
-
-
-@function_tool
-def get_all_homework_responses() -> List:
-    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
-
-    """
-    Get a list of all responses for a specific homework. You can access all the available homeworks responses using this tool. In case the user asks for the responses of a specific homework or the user question is related to a specific homework responses. 
-    """
-    try:
-        response = requests.get(
-            f"{settings.API_ENDPOINTS['base_url'
-            ]}/external-services/api/v1/homework-responses/",
-            timeout=10,
-            headers=headers,
-        )
-        response.raise_for_status()
-        return response.json()["results"]
-    except requests.RequestException as e:
-        return {"error": str(e)}
-
-
-@function_tool
-def get_all_homework_responses_by_homework(homework_id: str) -> List:
-    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
-
-    """Get a list of all homeworks responses for a specific homework. You have to pass the homework id as a query parameter in the request. Use this tool in case the user asks for homeworks responses in a specific homework. In case you could not find the homework id, respond back to the user that the homework is not found.
-
-    Args:
-        homework_id (str): The id of the homework.
-    """
-    try:
-        response = requests.get(
-            f"{settings.API_ENDPOINTS['base_url'
-            ]}/external-services/api/v1/homework-responses/",
-            params={"homework": homework_id},
-            timeout=10,
-            headers=headers,
-        )
-        response.raise_for_status()
-        return response.json()["results"]
-    except requests.RequestException as e:
-        return {"error": str(e)}
-
-
-@function_tool
-def get_homeworks_by_lesson(lesson_id: str) -> List:
-    """Get a list of all homeworks for a specific lesson. You have to pass the lesson id as a query parameter in the request. Use this tool in case the user asks for homeworks in a specific lesson. In case you the user add lesson name to the question, use the lessons tool to get the lesson id and pass it to this tool. In case you could not find the lesson id, respond back to the user that the lesson is not found.
-
-    Args:
-        lesson_id (str): The id of the lesson.
+    Get a list of all available homeworks with improved error handling. Using this tool all homework details like name, ..., etc is available. 
+    Returns standardized response format.
     """
 
     try:
-
-        headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
-
         response = requests.get(
             f"{settings.API_ENDPOINTS['base_url']}/external-services/api/v1/homeworks/",
-            params={"lesson": lesson_id},
             timeout=10,
             headers=headers,
         )
         response.raise_for_status()
-        return response.json()["results"]
+
+        data = response.json()
+        homeworks = data.get("results", [])
+
+        return AgentResponse(
+            success=True,
+            data=homeworks,
+            metadata={"total_homeworks": len(homeworks), "timestamp": time.time()},
+        )
     except requests.RequestException as e:
-        return {"error": str(e)}
+        logger.error(f"Failed to fetch homeworks: {e}")
+        return AgentResponse(
+            success=False, error=f"Failed to fetch homeworks: {str(e)}"
+        )
 
 
 @function_tool
-def get_homeworks_responses_by_user(user_id: str) -> List:
-    """Get a list of all homeworks responses for a specific user. You have to pass the user id as a query parameter in the request. Use this tool in case the user asks for homeworks for a specific user. In case you the user add username to the question, use the get_student_by_name tool from the students agent to get the user id and pass it to this tool. In case you could not find the user id, respond back to the user that the user is not found.
+@retry_on_failure(max_retries=3)
+def get_all_homework_responses() -> AgentResponse:
 
-    Args:
-        user_id (str): The id of the user.
+    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+
+    """
+    Get a list of all available homework responses with improved error handling. Using this tool all homework details like name, homework, ..., etc is available. 
+    Returns standardized response format.
     """
 
     try:
-
-        headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
-
         response = requests.get(
             f"{settings.API_ENDPOINTS['base_url']}/external-services/api/v1/homework-responses/",
-            params={"user": user_id},
             timeout=10,
             headers=headers,
         )
         response.raise_for_status()
-        return response.json()["results"]
+
+        data = response.json()
+        homework_responses = data.get("results", [])
+
+        return AgentResponse(
+            success=True,
+            data=homework_responses,
+            metadata={
+                "total_homeworks_responses": len(homework_responses),
+                "timestamp": time.time(),
+            },
+        )
     except requests.RequestException as e:
-        return {"error": str(e)}
+        logger.error(f"Failed to fetch homework responses: {e}")
+        return AgentResponse(
+            success=False, error=f"Failed to fetch homework responses: {str(e)}"
+        )
+
+
+@function_tool
+@retry_on_failure(max_retries=3)
+def get_all_homework_responses_by_homework(homework_id: str) -> AgentResponse:
+    """Get a list of all homeworks responses for a specific homework. The homework id as a query parameter in the request is required. Use this tool in case you need to find all homeworks responses for a specific homework.  In case you could not find a homework with that homework id, respond back to the user that the homework is not found. Returns standardized response format.
+
+
+    Args:
+        homework_id (str): The id of the homework (must be non-empty).
+    """
+
+    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+
+    try:
+        response = requests.get(
+            f"{settings.API_ENDPOINTS['base_url']}/external-services/api/v1/homework-responses/",
+            timeout=10,
+            params={"homework": homework_id},
+            headers=headers,
+        )
+        response.raise_for_status()
+
+        data = response.json()
+        homework_responses_by_homework = data.get("results", [])
+
+        return AgentResponse(
+            success=True,
+            data=homework_responses_by_homework,
+            metadata={
+                "total_homework_responses": len(homework_responses_by_homework),
+                "timestamp": time.time(),
+            },
+        )
+    except requests.RequestException as e:
+        logger.error(f"Failed to fetch homework responses by homework: {e}")
+        return AgentResponse(
+            success=False,
+            error=f"Failed to fetch homework responses by homework: {str(e)}",
+        )
+
+
+@function_tool
+@retry_on_failure(max_retries=3)
+def get_homeworks_by_lesson(lesson_id: str) -> AgentResponse:
+    """Get a list of all homeworks for a specific lesson. The lesson id as a query parameter in the request is required. Use this tool in case you need to find all homeworks  for a specific lesson.  In case you could not find a lesson with that lesson id, respond back to the user that the lesson is not found. Returns standardized response format.
+
+
+    Args:
+        lesson_id (str): The id of the lesson (must be non-empty).
+    """
+
+    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+
+    try:
+        response = requests.get(
+            f"{settings.API_ENDPOINTS['base_url']}/external-services/api/v1/homeworks/",
+            timeout=10,
+            params={"lesson": lesson_id},
+            headers=headers,
+        )
+        response.raise_for_status()
+
+        data = response.json()
+        homeworks_by_lesson = data.get("results", [])
+
+        return AgentResponse(
+            success=True,
+            data=homeworks_by_lesson,
+            metadata={
+                "total_homeworks": len(homeworks_by_lesson),
+                "timestamp": time.time(),
+            },
+        )
+    except requests.RequestException as e:
+        logger.error(f"Failed to fetch homeworks by lesson: {e}")
+        return AgentResponse(
+            success=False,
+            error=f"Failed to fetch homeworks by lesson: {str(e)}",
+        )
+
+
+@function_tool
+@retry_on_failure(max_retries=3)
+def get_homeworks_responses_by_user(student_id: str) -> AgentResponse:
+    """Get a list of all homeworks responses for a specific student. The student id as a query parameter in the request is required. Use this tool in case you need to find all homeworks responses for a specific student.  In case you could not find a student with that student id, respond back to the user that the student is not found. Returns standardized response format.
+
+
+    Args:
+        student_id (str): The id of the student (must be non-empty).
+    """
+
+    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+
+    try:
+        response = requests.get(
+            f"{settings.API_ENDPOINTS['base_url']}/external-services/api/v1/homework-responses/",
+            timeout=10,
+            params={"user": student_id},
+            headers=headers,
+        )
+        response.raise_for_status()
+
+        data = response.json()
+        homework_responses_by_student = data.get("results", [])
+
+        return AgentResponse(
+            success=True,
+            data=homework_responses_by_student,
+            metadata={
+                "total_homework_responses_by_student": len(
+                    homework_responses_by_student
+                ),
+                "timestamp": time.time(),
+            },
+        )
+    except requests.RequestException as e:
+        logger.error(f"Failed to fetch homework responses by student: {e}")
+        return AgentResponse(
+            success=False,
+            error=f"Failed to fetch homework responses by student: {str(e)}",
+        )
