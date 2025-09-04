@@ -22,7 +22,7 @@ class LessonsAgent(BaseAgent):
     Guidelines:
     - Always validate input parameters before making API calls
     - Provide helpful error messages when operations fail
-    - Include relevant metadata in your responses (course count, categories, etc.)
+    - Include relevant metadata in your responses (lesson count, etc.)
     - Be conversational and helpful in your responses
     - If a request fails, suggest alternative approaches
     """
