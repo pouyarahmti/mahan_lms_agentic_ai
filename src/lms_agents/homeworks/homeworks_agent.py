@@ -62,3 +62,13 @@ class HomeworksAgent(BaseAgent):
             tool_name="homework_tool",
             tool_description=self.TOOL_INSTRUCTIONS,
         )
+
+    def get_capabilities(self) -> List[str]:
+        """Return capabilities of this agent."""
+        return [
+            "get_all_homeworks",
+            "get_all_homework_responses",
+            "get_homeworks_by_lesson",
+            "get_homeworks_responses_by_user",
+            "get_all_homework_responses_by_homework",
+        ]

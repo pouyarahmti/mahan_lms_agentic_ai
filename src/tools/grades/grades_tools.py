@@ -2,6 +2,7 @@ from agents import function_tool
 import requests
 from src.config.settings import settings
 import logging
+from src.lms_agents.auth import auth_agent
 from src.utils.utils import retry_on_failure
 import time
 from src.lms_agents.base_agent import AgentResponse
@@ -13,8 +14,14 @@ logger = logging.getLogger(__name__)
 @function_tool
 @retry_on_failure(max_retries=3)
 def get_all_grades() -> AgentResponse:
-    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+    token_response = auth_agent.authenticate_user()
+    if not token_response.success:
+        return AgentResponse(
+            success=False, error="Authentication failed: " + token_response.error
+        )
 
+    access_token = token_response.data.get("access")
+    headers = {"Authorization": f"Bearer {access_token}"}
     """
     Get a list of all available grades with improved error handling. Using this tool all grade details like id, user, lesson, total_score, score, nomrehozoor (which is the grade for being absent/present), etc is available.
     Returns standardized response format.
@@ -50,7 +57,14 @@ def get_lesson_grades(lesson_id: str) -> AgentResponse:
         lesson_id (str): The id of the lesson.
     """
 
-    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+    token_response = auth_agent.authenticate_user()
+    if not token_response.success:
+        return AgentResponse(
+            success=False, error="Authentication failed: " + token_response.error
+        )
+
+    access_token = token_response.data.get("access")
+    headers = {"Authorization": f"Bearer {access_token}"}
 
     try:
         response = requests.get(
@@ -88,8 +102,14 @@ def get_student_grades(student_id: str) -> AgentResponse:
         student_id (str): The id of the student.
     """
 
-    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+    token_response = auth_agent.authenticate_user()
+    if not token_response.success:
+        return AgentResponse(
+            success=False, error="Authentication failed: " + token_response.error
+        )
 
+    access_token = token_response.data.get("access")
+    headers = {"Authorization": f"Bearer {access_token}"}
     try:
         response = requests.get(
             f"{settings.API_ENDPOINTS['base_url']}/external-services/api/v1/grades/",

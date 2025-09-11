@@ -2,6 +2,7 @@ from agents import function_tool
 import requests
 from src.config.settings import settings
 import logging
+from src.lms_agents.auth import auth_agent
 from src.utils.utils import retry_on_failure
 import time
 from src.lms_agents.base_agent import AgentResponse
@@ -14,7 +15,14 @@ logger = logging.getLogger(__name__)
 @retry_on_failure(max_retries=3)
 def get_all_lessons() -> AgentResponse:
 
-    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+    token_response = auth_agent.authenticate_user()
+    if not token_response.success:
+        return AgentResponse(
+            success=False, error="Authentication failed: " + token_response.error
+        )
+
+    access_token = token_response.data.get("access")
+    headers = {"Authorization": f"Bearer {access_token}"}
 
     """
     Get a list of all available lessons with improved error handling. Using this tool all lessons details like name, description, course, teacher, etc is available. 
@@ -52,7 +60,14 @@ def get_lessons_by_course(course_id: str) -> AgentResponse:
         course_id (str): The id of the course (must be non-empty).
     """
 
-    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+    token_response = auth_agent.authenticate_user()
+    if not token_response.success:
+        return AgentResponse(
+            success=False, error="Authentication failed: " + token_response.error
+        )
+
+    access_token = token_response.data.get("access")
+    headers = {"Authorization": f"Bearer {access_token}"}
 
     try:
         response = requests.get(

@@ -3,6 +3,7 @@ import requests
 from src.config.settings import settings
 import time
 import logging
+from src.lms_agents.auth import auth_agent
 from src.lms_agents.base_agent import AgentResponse
 from src.utils.utils import retry_on_failure
 
@@ -16,7 +17,14 @@ def get_all_courses() -> AgentResponse:
     Get a list of all available courses with improved error handling.
     Returns standardized response format.
     """
-    headers = {"Authorization": f"Bearer {settings.API_ACCESS_KEY}"}
+    token_response = auth_agent.authenticate_user()
+    if not token_response.success:
+        return AgentResponse(
+            success=False, error="Authentication failed: " + token_response.error
+        )
+
+    access_token = token_response.data.get("access")
+    headers = {"Authorization": f"Bearer {access_token}"}
 
     try:
         response = requests.get(

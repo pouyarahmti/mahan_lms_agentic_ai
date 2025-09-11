@@ -6,6 +6,9 @@ from src.lms_agents.courses.course_agent import CourseAgent
 from src.lms_agents.lessons.lessons_agent import LessonsAgent
 from src.lms_agents.students.students_agent import StudentsAgent
 from src.lms_agents.grades.grades_agent import GradesAgent
+from src.lms_agents.homeworks.homeworks_agent import HomeworksAgent
+from src.lms_agents.auth.auth_agent import AuthenticationAgent
+
 from agents import Agent, ModelSettings
 from src.config.settings import settings
 from typing import Dict, List
@@ -22,7 +25,7 @@ class ManagerAgent:
     You are an advanced educational assistant for Mahan users with access to specialized agents.
     
     Your role:
-    - Coordinate between different specialized agents (Course, Lessons, Students, Grades)
+    - Coordinate between different specialized agents (Course, Lessons, Students, Grades, Homeworks, etc.)
     - Provide comprehensive, well-structured responses
     - Handle complex queries that may require multiple agent interactions
     - Maintain context across multi-step operations
@@ -50,6 +53,8 @@ class ManagerAgent:
         self.lessons_agent = LessonsAgent()
         self.students_agent = StudentsAgent()
         self.grades_agent = GradesAgent()
+        self.homeworks_agent = HomeworksAgent()
+        self.auth_agent = AuthenticationAgent()
 
         # Create main coordinating agent
         self.agent = Agent(
@@ -60,11 +65,12 @@ class ManagerAgent:
                 self.lessons_agent.agent_tool,
                 self.students_agent.agent_tool,
                 self.grades_agent.agent_tool,
+                self.homeworks_agent.agent_tool,
+                self.auth_agent.agent_tool,
             ],
             model=settings.OPENAI_MODEL,
             model_settings=ModelSettings(
                 verbosity="medium",
-                temperature=0.7,
                 max_tokens=2000,  # Allow for more comprehensive responses
             ),
         )
@@ -78,4 +84,6 @@ class ManagerAgent:
             "lessons": self.lessons_agent.get_capabilities(),
             "students": self.students_agent.get_capabilities(),
             "grades": self.grades_agent.get_capabilities(),
+            "homeworks": self.homeworks_agent.get_capabilities(),
+            "auth": self.auth_agent.get_capabilities(),
         }
